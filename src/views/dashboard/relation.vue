@@ -44,18 +44,18 @@ export default {
     // const transform = d3.zoomIdentity.translate(this.margin.left, this.margin.top).scale(1)
     const transform = d3.zoomIdentity.translate(this.width / 2, this.margin.top).scale(1)
     const container = svg.select('g.container')
-    
+
     // 初始化缩放行为
     this.zoom = d3.zoom()
       .scaleExtent([1 / 2, 8])
       .on('zoom', this.zoomed)
-    
+
     container.transition().duration(750).call(this.zoom.transform, transform)
-    
+
     svg.call(this.zoom)
-    
+
     this.root = this.getRoot()
-    
+
     this.update(this.root)
   },
   methods: {
@@ -112,20 +112,30 @@ export default {
       // 树状图根据根节点生成新的x、y坐标
       this.dTreeData = this.treemap(this.root)
       this.nodes = this.dTreeData.descendants()
-      this.links = this.dTreeData.descendants().slice(1).map((item) => {
-        return item
-      })
-
-      console.log(this.links)
+      this.links = this.dTreeData.descendants().slice(1)
     },
     /** 
      * @description 数据与Dom进行绑定
      */
     update (source) {
       this.getNodesAndLinks()
-      this.nodes.forEach(d => {
+      console.log(this.nodes)
+      /*  this.nodes.forEach((d, index) => {
         d.y = d.depth * 180
+      }) */
+      this.nodes.forEach((d, index) => {
+        d.y = d.depth * -180
       })
+      function parseChildren(nodes) {
+        for(var i=0; i< nodes.length; i++) {
+          if (this.children) {
+            
+          } else {
+
+          }
+        }
+      }
+      parseChildren(this.nodes)
       const svg = d3.select(this.$el).select('svg.d3-tree')
       const container = svg.select('g.container')
       let node = container.selectAll('g.node')
@@ -142,7 +152,7 @@ export default {
 
       nodeEnter.append("circle")
         .attr("r", 5)
-        .style("fill", function (d) { return d.children || d._children ? "lightsteelblue" : "#fff"; });
+        .style("fill", function (d) { return d.children || d._children ? "lightsteelblue" : "#fff" })
 
       nodeEnter.append("text")
         .attr("x", function (d) { return d.children || d._children ? -15 : 15; })
@@ -187,7 +197,10 @@ export default {
       let linkEnter = link.enter().insert("path", "g")
         .attr("class", "link")
         .attr("d", d => {
-          let o = { x: source.x0, y: source.y0 };
+          let o = {
+            x: source.x0,
+            y: source.y0
+          };
           return this.diagonal(o, o)
         })
         .attr("fill", 'none')
